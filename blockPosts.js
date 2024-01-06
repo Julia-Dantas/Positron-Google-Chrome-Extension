@@ -22,12 +22,9 @@ function getAllText(node, innerTextList = []) {
 
         node.childNodes.forEach(function (child) {
             getAllText(child, innerTextList);
-            if ((node.nodeName === "H3" || node.nodeName === "H1") child.nodeType === Node.TEXT_NODE && child.textContent.trim().length > 0) {
+            if (node.nodeName === "H3" && child.nodeType === Node.TEXT_NODE && child.textContent.trim().length > 0) {
                 innerTextList.push(child.textContent.trim());
                 const text = child.textContent.trim();
-                moderateContent(text)
-                    .then(data => console.log(data))
-                    .catch(error => console.error(error)); // Display a warning
             }
             else if (node.nodeName === "P" && child.nodeType === Node.TEXT_NODE && child.textContent.trim().length > 0) {
                 innerTextList.push(child.textContent.trim());
@@ -64,9 +61,8 @@ async function moderateContent(prompt) {
             console.log(data.results[0]['category_scores']);
         } else {
             console.log('Content is approved'); // Do misinformation check
+            return "Unflagged";
         }
-
-        return data;
     } catch (error) {
         console.error('Error while calling OpenAI Moderation API:', error);
     }
