@@ -1,17 +1,11 @@
 {
-    "name": "test",
-    "version": "0.04",
-    "description": "test",
-    "icons": {
-        "128": "icon.png"
-    },
+    "manifest_version": 2,
+    "name": "My Extension",
+    "version": "1.0",
+    "description": "A simple Chrome extension.",
     "browser_action": {
-        "run_at": "document_start"
+      "default_popup": "popup.html"
     },
-    "content_scripts": [{
-        "matches": ["site"],
-        "js": ["test.js"],
-        "css": ["test.css"]
-    }],
-    "manifest_version": 2
-}
+    "permissions": ["activeTab"]
+  }
+  
