@@ -1,29 +1,24 @@
-// new MutationObserver(() => {
-//     const url = location.href;
-//     if (url !== lastUrl) {
-//         lastUrl = url;
-//         console.log(url);
-//     }
-// }
-// ).observe(document, {subtree: true, childList: true});
+chrome.tabs.onUpdated.addListener((tabId, changeInfo, tab) => {
+    if (changeInfo.status === "complete") {
+        if (tab.url === "https://www.reddit.com/") {
+            console.log("Inserted");
+        }
+        getAllText();
+    }
+})
 
-// chrome.runtime.onInstalled.addListener(({reason}) => {
-//     if (reason === 'install') {
-//       chrome.tabs.create({
-//         url: "onboarding.html"
-//       });
-//     }
-//   });
-
-//   async function getCurrentTab() {
-//     let queryOptions = { active: true, lastFocusedWindow: true };
-//     // `tab` will either be a `tabs.Tab` instance or `undefined`.
-//     let [tab] = await chrome.tabs.query(queryOptions);
-//     return tab;
-//   }
-
-//   function sendMessageToActiveTab(message) {
-//     const [tab] = await chrome.tabs.query({ active: true, lastFocusedWindow: true });
-//     const response = await chrome.tabs.sendMessage(tab.id, message);
-//     // TODO: Do something with the response.
-//   }
+function getAllText() {
+    setTimeout(function() {
+        var elements = document.querySelectorAll("b");
+        console.log(elements);
+        var innerTextList = [];
+    
+        elements.forEach(function(element) {
+            innerTextList.push(element.innerText);
+        });
+    
+        console.log(innerTextList);
+        
+        return innerTextList;
+    },3000);
+}
