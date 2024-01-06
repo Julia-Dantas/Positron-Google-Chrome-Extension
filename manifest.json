@@ -1,0 +1,17 @@
+{
+    "name": "test",
+    "version": "0.04",
+    "description": "test",
+    "icons": {
+        "128": "icon.png"
+    },
+    "browser_action": {
+        "run_at": "document_start"
+    },
+    "content_scripts": [{
+        "matches": ["site"],
+        "js": ["test.js"],
+        "css": ["test.css"]
+    }],
+    "manifest_version": 2
+}
