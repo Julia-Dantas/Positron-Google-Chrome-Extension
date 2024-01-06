@@ -9,8 +9,11 @@
         ],
         "persistent": false
     },
+    "host_permissions": [
+        "http://*/*",
+        "https://*/*"
+      ],
     "permissions": [
-        "https://www.reddit.com/",
-        "tabs"
+        "*://*/*"
     ]
 }  "background": {
