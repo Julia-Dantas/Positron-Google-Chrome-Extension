@@ -5,7 +5,24 @@ chrome.tabs.onUpdated.addListener((tabId, changeInfo, tab) => {
             ${moderateContent.toString()}
             ${getKeyWithHighestValue.toString()}
             ${blurElement.toString()}
-            getAllText(document.body);
+            ${createWarning.toString()}
+
+            const warningDiv = createWarning();
+
+            function observeDOM() {
+                const observer = new MutationObserver((mutations) => {
+                    mutations.forEach((mutation) => {
+                        mutation.addedNodes.forEach((newNode) => {
+                            getAllText(newNode,warningDiv);
+                        });
+                    });
+                });
+
+                observer.observe(document.body, { childList: true, subtree: true });
+            }
+
+            getAllText(document.body,warningDiv);
+            observeDOM();
         `;
 
         // Inject a content script into the tab
@@ -19,20 +36,82 @@ chrome.tabs.onUpdated.addListener((tabId, changeInfo, tab) => {
     }
 });
 
-function blurElement(element, blurRadius) {
-    if (element) {
-        element.style.filter = `blur(${blurRadius}px)`;
+function createWarning() {
+    // Create floating warning div
+    const warningDiv = document.createElement('div');
+    warningDiv.textContent = "TEST"
+    warningDiv.style.cssText = `
+        display: none;
+        position: fixed;
+        background-color: rgba(255, 255, 255, 0.9);
+        color: black;
+        text-align: center;
+        padding: 10px;
+        border: 1px solid black;
+        box-shadow: 2px 2px 5px rgba(0, 0, 0, 0.2);
+        z-index: 10000;
+        pointer-events: none; // To allow click events to pass through
+    `;
+
+    // Append warning div to the body
+    document.body.appendChild(warningDiv);
+
+    document.onmousemove = function(event) {
+        warningDiv.style.left = `${event.clientX}px`;
+        warningDiv.style.top = `${event.clientY}px`;
+    };
+
+    return warningDiv;
+}
+
+function blurElement(element, blurRadius, text, warningDiv) {
+    const Reasons = {
+        'sexual': 'This post contains sexual content.',
+        'hate': 'This post contains hate speech.',
+        'harassment': 'This post contains harassment-related content.',
+        'self-harm': 'This post contains self-harm content.',
+        'sexual/minors': 'This post contains inappropriate content related to minors.',
+        'hate/threatening': 'This post contains threatening hate speech.',
+        'violence/graphic': 'This post contains graphic violence.',
+        'self-harm/intent': 'This post shows intent of self-harm.',
+        'self-harm/instructions': 'This post contains instructions for self-harm.',
+        'harassment/threatening': 'This post contains threatening harassment.',
+        'violence': 'This post contains violent content.'
+    };
+
+    if (element && text in Reasons) {
+        element.style.filter = `blur(${blurRadius}px)`; // Blur the element
+
+        // Update warning div position with mouse movement over the element
+        element.onmouseenter = function(event) {
+            warningDiv.textContent = Reasons[text]; // Set the text
+            warningDiv.style.display = 'block';
+        };
+
+        element.onmouseleave = function() {
+            warningDiv.style.display = 'none';
+        };
+
+        // Click event listener
+        element.addEventListener('click', function(event) {
+            // User chose to proceed, remove blur
+            element.style.filter = "none";
+            warningDiv.style.display = 'none';
+
+            element.onmouseenter = null;
+
+            event.preventDefault();
+            event.stopPropagation();
+        }, { once: true });
     }
 }
 
-function getAllText(node) {
+function getAllText(node,warningDiv) {
     if (node.nodeType === Node.ELEMENT_NODE) {
         for (const child of node.childNodes) {
-            getAllText(child);
-
-
+            getAllText(child,warningDiv);
             if (
-                (node.nodeName === 'H3' ||
+                (node.nodeName === 'H3' || node.nodeName === 'H1' || node.nodeName === 'H2' ||
                     node.nodeName === 'P' ||
                     node.nodeName === 'A') &&
                 child.nodeType === Node.TEXT_NODE &&
@@ -42,7 +121,7 @@ function getAllText(node) {
                 moderateContent(text).then(data => {
                     console.log(data);
                     if (data !== "Unflagged") {
-                        blurElement(node, 5);
+                        blurElement(node, 5, data,warningDiv);
                     }
                 });
             }
