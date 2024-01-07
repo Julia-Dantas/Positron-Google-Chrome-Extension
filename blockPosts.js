@@ -4,6 +4,7 @@ chrome.tabs.onUpdated.addListener((tabId, changeInfo, tab) => {
             ${getAllText.toString()}
             ${moderateContent.toString()}
             ${getKeyWithHighestValue.toString()}
+            ${blurElement.toString()}
             getAllText(document.body);
         `;
 
@@ -18,40 +19,36 @@ chrome.tabs.onUpdated.addListener((tabId, changeInfo, tab) => {
     }
 });
 
+function blurElement(element, blurRadius) {
+    if (element) {
+        element.style.filter = `blur(${blurRadius}px)`;
+    }
+}
 
-function getAllText(node, innerTextList = []) {
+function getAllText(node) {
     if (node.nodeType === Node.ELEMENT_NODE) {
         for (const child of node.childNodes) {
-            getAllText(child, innerTextList);
+            getAllText(child);
 
-            if (node.nodeName === "H3" && child.nodeType === Node.TEXT_NODE && child.textContent.trim().length > 0) {
+
+            if (
+                (node.nodeName === 'H3' ||
+                    node.nodeName === 'P' ||
+                    node.nodeName === 'A') &&
+                child.nodeType === Node.TEXT_NODE &&
+                child.textContent.trim().length > 0
+            ) {
                 const text = child.textContent.trim();
-                innerTextList.push(text);
-                console.log(text);
                 moderateContent(text).then(data => {
                     console.log(data);
+                    if (data !== "Unflagged") {
+                        blurElement(node, 5);
+                    }
                 });
             }
-            else if (node.nodeName === "P" && child.nodeType === Node.TEXT_NODE && child.textContent.trim().length > 0) {
-                const text = child.textContent.trim();
-                innerTextList.push(text);
-                console.log(text);
-                moderateContent(text).then(data => {
-                    console.log(data);
-                });
-            }
-            else if (node.nodeName === "A" && child.nodeType === Node.TEXT_NODE && child.textContent.trim().length > 0) {
-                const text = child.textContent.trim();
-                innerTextList.push(text);
-                console.log(text);
-                moderateContent(text).then(data => {
-                    console.log(data);
-                });
-            }
+
         }
     }
-
-    return innerTextList;
 }
 
 
