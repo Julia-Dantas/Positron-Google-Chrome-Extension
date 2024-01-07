@@ -18,6 +18,8 @@ To install this extension
 
 ![download](download.png)
 
+![downloadZip](downloadZip.png)
+
 2. Unzip download (don't need to unzip if cloned)
 
 3. Go to Chrome extension page by going to [chrome://extensions/](chrome://extensions/) (as a URL address)
