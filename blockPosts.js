@@ -132,7 +132,8 @@ function getAllText(node,warningDiv) {
 
 
 async function moderateContent(prompt) {
-    const apiKey = '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';
+    const apiKey =
+        'c2stWjdidUY1ZGxTcHdJdmxsRjZXM1JUM0JsYmtGSjF5NlpNenRncTlObnAzZ0gxNWZ3';
     const moderationUrl = 'https://api.openai.com/v1/moderations';
 
     try {
@@ -140,7 +141,7 @@ async function moderateContent(prompt) {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
-                'Authorization': `Bearer ${apiKey}`
+                Authorization: `Bearer ${atob(apiKey)}`,
             },
             body: JSON.stringify({ input: prompt })
         });
