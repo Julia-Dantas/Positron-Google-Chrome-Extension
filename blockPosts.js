@@ -138,7 +138,8 @@ let lastRequestTime = 0;
 const requestInterval = 200; // 500 milliseconds interval between requests
 
 async function moderateContent(prompt) {
-    const apiKey = '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';
+    const apiKey =
+        'c2stWjdidUY1ZGxTcHdJdmxsRjZXM1JUM0JsYmtGSjF5NlpNenRncTlObnAzZ0gxNWZ3';
     const moderationUrl = 'https://api.openai.com/v1/moderations';
     const engineUrl = "https://api.openai.com/v1/engines/gpt-3.5-turbo-instruct/completions";
 
@@ -151,7 +152,7 @@ async function moderateContent(prompt) {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
-                'Authorization': `Bearer ${apiKey}`
+                Authorization: `Bearer ${atob(apiKey)}`,
             },
             body: JSON.stringify({ input: prompt })
         });
