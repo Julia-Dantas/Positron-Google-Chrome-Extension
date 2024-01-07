@@ -1,19 +1,14 @@
 {
     "name": "Positron",
-    "description": "",
+    "description": "Lighten your life with less negative posts",
     "version": "1.0",
     "manifest_version": 2,
+
+    "icons": { "120": "images/favicon.ico" },
     "background": {
-        "scripts": [
-            "blockPosts.js"
-        ],
+        "scripts": ["blockPosts.js"],
         "persistent": false
     },
-    "host_permissions": [
-        "http://*/*",
-        "https://*/*"
-      ],
-    "permissions": [
-        "*://*/*"
-    ]
+    "host_permissions": ["http://*/*", "https://*/*"],
+    "permissions": ["*://*/*"]
 }
