@@ -24,15 +24,19 @@ To install this extension
 
 3. Go to Chrome extension page by going to [chrome://extensions/](chrome://extensions/) (as a URL address)
 
-4. Hit the Developer mode toggle to on (screenshot is off)
+4. Hit the Developer mode toggle to on (screenshot is on)
 
-![toggle](toggle.png)
+<img width="956" alt="image" src="https://github.com/Julia-Dantas/Positron-Google-Chrome-Extension/assets/90366819/03462c5d-5422-4434-9f46-67ae5966e11b">
 
 5. Click Load unpacked and navigate to the unzipped folder
+<img width="952" alt="image" src="https://github.com/Julia-Dantas/Positron-Google-Chrome-Extension/assets/90366819/bcf88871-7a94-4e62-a762-275e0ff2c7f1">
 
-6. Confirm
+7. Confirm
 
 Now you have the extension installed!! 🤩
+
+<img width="314" alt="image" src="https://github.com/Julia-Dantas/Positron-Google-Chrome-Extension/assets/90366819/5ddf68e8-91dd-4248-8d34-71a88af0ae8d">
+
 
 ### Enable Developer Mode
 
