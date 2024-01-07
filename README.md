@@ -37,11 +37,6 @@ Now you have the extension installed!! 🤩
 
 <img width="314" alt="image" src="https://github.com/Julia-Dantas/Positron-Google-Chrome-Extension/assets/90366819/5ddf68e8-91dd-4248-8d34-71a88af0ae8d">
 
-
-### Enable Developer Mode
-
-Go to [`chrome://extensions/`](chrome://extensions/) and
-
 ## Inspiration ✨
 
 In a world full of misinformation, hate speech, and harmful content, it overwhelms and negatively affects people. Research has shown that negative posts can effect your mental state. With our extension, we can hide hateful content **automagically ✨**! You can also check if your post will be flagged by our system by checking your post on the website before you post!
