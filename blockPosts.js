@@ -1,31 +1,34 @@
 chrome.tabs.onUpdated.addListener((tabId, changeInfo, tab) => {
     if (changeInfo.status === "complete") {
         const scriptToInject = `
-            ${getAllText.toString()}
             ${moderateContent.toString()}
             ${getKeyWithHighestValue.toString()}
             ${blurElement.toString()}
             ${createWarning.toString()}
+            ${getAllText.toString()}
+			${applyRateLimiting.toString()}
+			${query.toString()}
+
+            let lastRequestTime = 0;
+            const requestInterval = 200;
 
             const warningDiv = createWarning();
+            getAllText(document.body, warningDiv);
+            observeDOM();
 
             function observeDOM() {
                 const observer = new MutationObserver((mutations) => {
                     mutations.forEach((mutation) => {
                         mutation.addedNodes.forEach((newNode) => {
-                            getAllText(newNode,warningDiv);
+                            getAllText(newNode, warningDiv);
                         });
                     });
                 });
 
                 observer.observe(document.body, { childList: true, subtree: true });
             }
-
-            getAllText(document.body,warningDiv);
-            observeDOM();
         `;
 
-        // Inject a content script into the tab
         chrome.tabs.executeScript(tabId, {
             code: scriptToInject
         }, (results) => {
@@ -66,17 +69,18 @@ function createWarning() {
 
 function blurElement(element, blurRadius, text, warningDiv) {
     const Reasons = {
-        'sexual': 'This post contains sexual content.',
-        'hate': 'This post contains hate speech.',
-        'harassment': 'This post contains harassment-related content.',
-        'self-harm': 'This post contains self-harm content.',
-        'sexual/minors': 'This post contains inappropriate content related to minors.',
-        'hate/threatening': 'This post contains threatening hate speech.',
-        'violence/graphic': 'This post contains graphic violence.',
-        'self-harm/intent': 'This post shows intent of self-harm.',
-        'self-harm/instructions': 'This post contains instructions for self-harm.',
-        'harassment/threatening': 'This post contains threatening harassment.',
-        'violence': 'This post contains violent content.'
+        'sexual': 'This post likely contains sexual content.',
+        'hate': 'This post likely contains hate speech.',
+        'harassment': 'This post likely contains harassment-related content.',
+        'self-harm': 'This post likely contains self-harm content.',
+        'sexual/minors': 'This post likely contains inappropriate content related to minors.',
+        'hate/threatening': 'This post likely contains threatening hate speech.',
+        'violence/graphic': 'This post likely contains graphic violence.',
+        'self-harm/intent': 'This post likely shows intent of self-harm.',
+        'self-harm/instructions': 'This post likely contains instructions for self-harm.',
+        'harassment/threatening': 'This post likely contains threatening harassment.',
+        'violence': 'This post likely contains violent content.',
+		'misinformation': 'This post contains topics that are prone to misinformation.'
     };
 
     if (element && text in Reasons) {
@@ -111,19 +115,18 @@ function getAllText(node,warningDiv) {
         for (const child of node.childNodes) {
             getAllText(child,warningDiv);
             if (
-                (node.nodeName === 'H3' || node.nodeName === 'H1' || node.nodeName === 'H2' ||
-                    node.nodeName === 'P' ||
-                    node.nodeName === 'A') &&
                 child.nodeType === Node.TEXT_NODE &&
                 child.textContent.trim().length > 0
             ) {
                 const text = child.textContent.trim();
-                moderateContent(text).then(data => {
-                    console.log(data);
-                    if (data !== "Unflagged") {
-                        blurElement(node, 5, data,warningDiv);
-                    }
-                });
+                if (text.split(/\s+/).length >= 3) {
+					moderateContent(text).then(data => {
+						console.log(data);
+						if (data !== "Unflagged") {
+							blurElement(node, 5, data, warningDiv);
+						}
+					});
+				}
             }
 
         }
@@ -131,38 +134,73 @@ function getAllText(node,warningDiv) {
 }
 
 
+let lastRequestTime = 0;
+const requestInterval = 200; // 500 milliseconds interval between requests
+
 async function moderateContent(prompt) {
-    const apiKey =
-        'c2stWjdidUY1ZGxTcHdJdmxsRjZXM1JUM0JsYmtGSjF5NlpNenRncTlObnAzZ0gxNWZ3';
+    const apiKey = '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';
     const moderationUrl = 'https://api.openai.com/v1/moderations';
+    const engineUrl = "https://api.openai.com/v1/engines/gpt-3.5-turbo-instruct/completions";
 
     try {
-        const response = await fetch(moderationUrl, {
+        // Apply rate limiting
+        await applyRateLimiting();
+
+        // Moderation API request
+        const moderationResponse = await fetch(moderationUrl, {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
-                Authorization: `Bearer ${atob(apiKey)}`,
+                'Authorization': `Bearer ${apiKey}`
             },
             body: JSON.stringify({ input: prompt })
         });
 
-        if (!response.ok) {
-            throw new Error(`Error: ${response.status}`);
+        if (!moderationResponse.ok) {
+            throw new Error(`Error: ${moderationResponse.status}`);
         }
 
-        const data = await response.json();
-        const isFlagged = data.results[0]['flagged'];
-        console.log(isFlagged);
+        const moderationData = await moderationResponse.json();
+        const isFlagged = moderationData.results[0]['flagged'];
 
-        if (isFlagged) {
-            return getKeyWithHighestValue(data.results[0]['category_scores']);
-        } else {
-            // Do misinformation check
-            return "Unflagged";
+        if (!isFlagged) {
+			return "Unflagged";
+			//const misinformationResult = await query({ inputs: prompt });
+			
+			//console.log(misinformationResult[0][0]['score']);
+			
+			//return (misinformationResult[0][0]['label'] == 'Fake' && misinformationResult[0][0]['score'] > 0.999) ? "misinformation" :"Unflagged";
         }
+
+        return getKeyWithHighestValue(moderationData.results[0]['category_scores']);
+
     } catch (error) {
-        console.error('Error while calling OpenAI Moderation API:', error);
+        console.error('Error while calling OpenAI API:', error);
     }
+}
+
+async function query(data) {
+	const response = await fetch(
+		"https://api-inference.huggingface.co/models/therealcyberlord/fake-news-classification-distilbert",
+		{
+			headers: { Authorization: "Bearer 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" },
+			method: "POST",
+			body: JSON.stringify(data),
+		}
+	);
+	const result = await response.json();
+	console.log(result);
+
+	return result;
+}
+
+// Function to handle rate limiting
+async function applyRateLimiting() {
+    const currentTime = Date.now();
+    if (currentTime - lastRequestTime < requestInterval) {
+        await new Promise(resolve => setTimeout(resolve, requestInterval - (currentTime - lastRequestTime)));
+    }
+    lastRequestTime = Date.now();
 }
 
 function getKeyWithHighestValue(obj) {
