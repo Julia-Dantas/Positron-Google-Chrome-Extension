@@ -1,14 +1,13 @@
 {
+  "manifest_version": 3,
   "name": "Positron",
-  "description": "",
   "version": "1.0",
-  "manifest_version": 2,
-
-  "icons": { "120": "images/favicon.ico" },
+  "description": "Remove Negative posts",
+  "permissions": ["activeTab", "storage"],
   "background": {
-    "scripts": ["blockPosts.js"],
-    "persistent": false
+    "service_worker": "background.js"
   },
-  "host_permissions": ["http://*/*", "https://*/*"],
-  "permissions": ["*://*/*"]
+  "icons": {
+    "120": "images/favicon.ico"
+  }
 }
