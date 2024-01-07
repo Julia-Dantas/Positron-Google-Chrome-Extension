@@ -4,11 +4,15 @@
 
 Positron is a browser extension that removes all hate speech, misinformation, and harmful content from your feed!
 
-Learn more on the [website](https://positron-rouge.vercel.app/) or download the extension directly on the [GitHub](https://github.com/Julia-Dantas/Positron-Google-Chrome-Extension). Follow the instruction [below](#Installation Guide) to install.
+Learn more on the [website](https://positron-rouge.vercel.app/) or download the extension directly on the [GitHub](https://github.com/Julia-Dantas/Positron-Google-Chrome-Extension). Follow the instruction [below](#Installation-Guide) to install.
 
 ## Demo
 
-TODO: insert demo here
+The extension:
+![extension demo](https://github.com/Zeyu-Li/positron-website/blob/main/public/showcase.gif?raw=true)
+Website showcase:
+![website showcase](https://github.com/Zeyu-Li/positron-website/blob/main/website.gif?raw=true)
+
 
 ## Installation Guide
 
@@ -78,3 +82,4 @@ An interesting next step would be to also include image capacities to limit pote
 ### Links
 
 Check out our Devpost submission [here](https://devpost.com/software/positron-ebukjt)
+
